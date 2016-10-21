@@ -1,0 +1,172 @@
+
+
+
+CREATE TABLE TBL_Order
+(
+	OrderID              INTEGER NOT NULL ,
+	OrderNumber          NVARCHAR2(64) NULL ,
+	ContactName          NVARCHAR2(256) NOT NULL ,
+	ContactPhone         VARCHAR2(20) NOT NULL ,
+	ContactAdress        VARCHAR2(256) NOT NULL ,
+	Total                DECIMAL(15,2) DEFAULT  0  NOT NULL  CONSTRAINT  VR_TotalPrice CHECK (Total >= 0),
+	UserID               INTEGER NOT NULL ,
+	CreatedDate          DATE NOT NULL ,
+	PaidDate             DATE NULL ,
+	OrderDescription     NVARCHAR2(2000) NULL 
+)
+	TABLESPACE NetShop_DATA;
+
+
+
+CREATE UNIQUE INDEX XPKTBL_Order ON TBL_Order
+(OrderID   ASC)
+	TABLESPACE NetShop_INDEX;
+
+
+
+ALTER TABLE TBL_Order
+	ADD CONSTRAINT  XPKTBL_Order PRIMARY KEY (OrderID);
+
+
+
+CREATE UNIQUE INDEX XAK1TBL_Order ON TBL_Order
+(OrderNumber   ASC)
+	TABLESPACE NetShop_INDEX;
+
+
+
+ALTER TABLE TBL_Order
+ADD CONSTRAINT  XAK1TBL_Order UNIQUE (OrderNumber);
+
+
+
+CREATE TABLE TBL_OrderDetails
+(
+	Price                DECIMAL(15,2) NOT NULL  CONSTRAINT  VR__OrderDetailsPric_787530493 CHECK (Price >= 0),
+	Quantity             INTEGER NOT NULL  CONSTRAINT  VR_MoreZero CHECK (Quantity >= 1),
+	OrderID              INTEGER NOT NULL ,
+	ProductID            INTEGER NOT NULL 
+)
+	TABLESPACE NetShop_DATA;
+
+
+
+CREATE UNIQUE INDEX XPKTBL_OrderDetails ON TBL_OrderDetails
+(OrderID   ASC,ProductID   ASC)
+	TABLESPACE NetShop_INDEX;
+
+
+
+ALTER TABLE TBL_OrderDetails
+	ADD CONSTRAINT  XPKTBL_OrderDetails PRIMARY KEY (OrderID,ProductID);
+
+
+
+CREATE TABLE TBL_Product
+(
+	ProductID            INTEGER NOT NULL ,
+	ProductName          NVARCHAR2(256) NOT NULL ,
+	ProductDescription   NVARCHAR2(2000) NULL ,
+	Price                DECIMAL(15,2) NOT NULL  CONSTRAINT  VR_ProductPrice CHECK (Price >= 0),
+	isActive             SMALLINT NOT NULL  CONSTRAINT  VR_BOOL CHECK (isActive IN (0, 1))
+)
+	TABLESPACE NetShop_DATA;
+
+
+
+CREATE UNIQUE INDEX XPKTBL_Product ON TBL_Product
+(ProductID   ASC)
+	TABLESPACE NetShop_INDEX;
+
+
+
+ALTER TABLE TBL_Product
+	ADD CONSTRAINT  XPKTBL_Product PRIMARY KEY (ProductID);
+
+
+
+CREATE UNIQUE INDEX XAK1TBL_Product ON TBL_Product
+(ProductName   ASC)
+	TABLESPACE NetShop_INDEX;
+
+
+
+ALTER TABLE TBL_Product
+ADD CONSTRAINT  XAK1TBL_Product UNIQUE (ProductName);
+
+
+
+CREATE TABLE TBL_Role
+(
+	RoleID               char(1) NOT NULL ,
+	RoleName             NVARCHAR2(128) NOT NULL 
+)
+	TABLESPACE NetShop_DATA;
+
+
+
+CREATE UNIQUE INDEX XPKTBL_Role ON TBL_Role
+(RoleID   ASC)
+	TABLESPACE NetShop_INDEX;
+
+
+
+ALTER TABLE TBL_Role
+	ADD CONSTRAINT  XPKTBL_Role PRIMARY KEY (RoleID);
+
+
+
+CREATE TABLE TBL_User
+(
+	UserID               INTEGER NOT NULL ,
+	Login                NVARCHAR2(256) NOT NULL ,
+	Password             NVARCHAR2(128) NOT NULL ,
+	UserName             NVARCHAR2(256) NOT NULL ,
+	RoleID               char(1) NOT NULL ,
+	ContactPhone         VARCHAR2(64) NULL ,
+	ContactAdress        NVARCHAR2(256) NULL 
+)
+	TABLESPACE NetShop_DATA;
+
+
+
+CREATE UNIQUE INDEX XPKTBL_User ON TBL_User
+(UserID   ASC)
+	TABLESPACE NetShop_INDEX;
+
+
+
+ALTER TABLE TBL_User
+	ADD CONSTRAINT  XPKTBL_User PRIMARY KEY (UserID);
+
+
+
+CREATE UNIQUE INDEX XAK1TBL_User ON TBL_User
+(Login   ASC)
+	TABLESPACE NetShop_INDEX;
+
+
+
+ALTER TABLE TBL_User
+ADD CONSTRAINT  XAK1TBL_User UNIQUE (Login);
+
+
+
+ALTER TABLE TBL_Order
+	ADD (CONSTRAINT R_11 FOREIGN KEY (UserID) REFERENCES TBL_User (UserID));
+
+
+
+ALTER TABLE TBL_OrderDetails
+	ADD (CONSTRAINT R_13 FOREIGN KEY (OrderID) REFERENCES TBL_Order (OrderID));
+
+
+
+ALTER TABLE TBL_OrderDetails
+	ADD (CONSTRAINT R_14 FOREIGN KEY (ProductID) REFERENCES TBL_Product (ProductID));
+
+
+
+ALTER TABLE TBL_User
+	ADD (CONSTRAINT R_9 FOREIGN KEY (RoleID) REFERENCES TBL_Role (RoleID));
+
